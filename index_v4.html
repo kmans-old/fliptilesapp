@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>FTA001T</title>
+  <style>
+    :root{
+      --bg:#f4f6fb; --panel:#ffffff; --text:#0f172a; --muted:#64748b;
+      --brand:#2563eb;
+      --shadow: 0 8px 26px rgba(15,23,42,.08);
+      --stroke: rgba(15,23,42,.30);
+
+      --cols: 3;
+      --gap: 10px;
+      --radius: 14px;
+
+      /* tegelgrootte (vierkant) */
+      --tile: 140px; /* Compact 110, Normaal 140, Ruim 190 */
+      --tileMin: 110; /* ~25mm op veel schermen, geen mm-garantie in browsers */
+
+      /* toolbar */
+      --tbH: 34px;
+      --tbFont: 13px;
+      --tbPadX: 10px;
+
+      /* icon sizing (bescheiden, schaalt mee met preset) */
+      --icon: 18px;
+      --iconBtnW: 34px;
+      --iconBtnH: 32px;
+
+      --actGap: 6px;
+      --actPad: 8px;
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --panel:#0f1a2e; --text:#e8eefc; --muted:#a8b3cc;
+      --brand:#60a5fa;
+      --stroke: rgba(232,238,252,.30);
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      font: 15px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:var(--bg); color:var(--text);
+    }
+
+    header{
+      position:sticky; top:0; z-index:50;
+      background: var(--panel);
+      border-bottom:2px solid var(--stroke);
+      box-shadow: var(--shadow);
+    }
+    .bar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      max-width: 2200px; /* meer ruimte op 27" */
+      margin:0 auto;
+      flex-wrap:wrap;
+    }
+
+    .brandBtn{
+      display:inline-flex; align-items:center;
+      height: var(--tbH);
+      padding: 0 12px;
+      border-radius:12px;
+      border:2px solid var(--stroke);
+      background: #eaf2ff;
+      color:#0b1220;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    [data-theme="dark"] .brandBtn{
+      background: rgba(96,165,250,.18);
+      color: var(--text);
+    }
+
+    button{
+      appearance:none;
+      border:2px solid var(--stroke);
+      background:var(--panel);
+      color:var(--text);
+      border-radius:12px;
+      height: var(--tbH);
+      padding: 0 var(--tbPadX);
+      cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px;
+      user-select:none;
+      font-weight:750;
+      font-size: var(--tbFont);
+      white-space:nowrap;
+    }
+    button:hover{ box-shadow: 0 6px 18px rgba(15,23,42,.10); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: var(--brand);
+      color:#fff;
+      border-color: rgba(0,0,0,.35);
+    }
+    button.danger{
+      background: rgba(239,68,68,.10);
+      border-color: rgba(239,68,68,.45);
+    }
+    button.mini{
+      height: calc(var(--tbH) - 6px);
+      padding: 0 10px;
+      border-radius: 10px;
+      font-weight: 900;
+    }
+
+    .chip{
+      display:flex; align-items:center; gap:8px;
+      padding:0 10px;
+      border:2px solid var(--stroke);
+      border-radius:12px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+      height: var(--tbH);
+    }
+    .chip b{ color:var(--text); font-weight:900; }
+
+    .seg{
+      display:inline-flex;
+      border:2px solid var(--stroke);
+      border-radius:12px;
+      overflow:hidden;
+      height: var(--tbH);
+      background: var(--panel);
+    }
+    .seg button{
+      border:0;
+      border-right:2px solid var(--stroke);
+      border-radius:0;
+      height:100%;
+      padding: 0 10px;
+      font-size: var(--tbFont);
+      background: transparent;
+    }
+    .seg button:last-child{ border-right:0; }
+    .seg button.active{
+      background: rgba(37,99,235,.12);
+      font-weight:900;
+    }
+    [data-theme="dark"] .seg button.active{ background: rgba(96,165,250,.18); }
+
+    .stepper{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      height: var(--tbH);
+      border:2px solid var(--stroke);
+      border-radius:12px;
+      padding: 0 8px;
+      background: var(--panel);
+      color: var(--muted);
+      white-space:nowrap;
+      font-size: 12px;
+    }
+    .stepper .val{
+      min-width: 26px;
+      text-align:center;
+      font-weight: 900;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .spacer{ flex:1; }
+
+    main{ max-width:2200px; margin: 14px auto 120px; padding: 0 12px 140px; }
+    .hint{ color:var(--muted); font-size:13px; padding:10px 2px 0; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+      gap: var(--gap);
+      align-items:stretch;
+      margin-top:10px;
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 360px){
+      .grid{ grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    }
+
+    .tile{
+      position:relative;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border:2px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      aspect-ratio: 1 / 1; /* altijd vierkant */
+      transform-style:preserve-3d;
+      perspective:1000px;
+    }
+    .tileInner{
+      position:absolute; inset:0;
+      transition: transform .35s ease;
+      transform-style:preserve-3d;
+    }
+    .tile.flipped .tileInner{ transform: rotateY(180deg); }
+
+    .face{
+      position:absolute; inset:0;
+      backface-visibility:hidden;
+      display:flex;
+      flex-direction:column;
+      min-width:0;
+      height:100%;
+    }
+    .back{ transform: rotateY(180deg); }
+
+    .content{
+      flex:1;
+      margin:10px 10px 0;
+      border-radius: 12px;
+      background: #eaf2ff;
+      border:2px dashed rgba(37,99,235,.35);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      position:relative;
+      min-width:0;
+    }
+    [data-theme="dark"] .content{
+      background: rgba(96,165,250,.12);
+      border-color: rgba(96,165,250,.35);
+    }
+    .content img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .textBox{
+      width:100%; height:100%;
+      padding:10px;
+      resize:none;
+      border:0; outline:0;
+      background:transparent;
+      color:var(--text);
+      font: 14px/1.25 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: var(--actGap);
+      padding: var(--actPad);
+      min-width:0;
+      flex-wrap:wrap;
+    }
+    .leftIcons, .rightIcons{
+      display:flex;
+      gap: var(--actGap);
+      align-items:center;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+
+    .iconBtn{
+      width: var(--iconBtnW);
+      height: var(--iconBtnH);
+      border-radius:12px;
+      border:2px solid var(--stroke);
+      background: var(--panel);
+      display:grid; place-items:center;
+      cursor:pointer; padding:0;
+      flex:0 0 auto;
+    }
+    .iconBtn svg{ width: var(--icon); height: var(--icon); display:block; }
+
+    /* Nummering: altijd vrij zichtbaar, linksboven, niet op iconen */
+    .numBadge{
+      position:absolute; left:10px; top:10px;
+      width:28px; height:28px; border-radius:999px;
+      display:grid; place-items:center;
+      font-weight:900; font-size:12px;
+      color:#0b1220; background:#fff;
+      border:2px solid rgba(15,23,42,.25);
+      box-shadow: 0 4px 14px rgba(15,23,42,.18);
+      z-index:6;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    /* Modal (prullenbak) */
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.35);
+      display:none;
+      align-items:center; justify-content:center;
+      padding: 18px;
+      z-index: 200;
+    }
+    .modalBack.open{ display:flex; }
+    .modal{
+      width: min(920px, 100%);
+      max-height: min(78vh, 900px);
+      overflow:auto;
+      background: var(--panel);
+      border:2px solid var(--stroke);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .modal h2{ margin: 4px 6px 12px; font-size: 18px; }
+    .trashRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px;
+      border-radius: 14px;
+      border:2px solid var(--stroke);
+      margin: 8px 6px;
+    }
+    .trashMeta{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .trashMeta small{ color: var(--muted); }
+    .trashBtns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .emptyInfo{
+      border:2px dashed var(--stroke);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--muted);
+      background: rgba(15,23,42,.02);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 520px){
+      :root{ --gap:8px; }
+      .bar{ gap:8px; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="bar">
+    <div class="brandBtn" id="brandBtn" title="Klik om naam te zetten (bv. Voertuigen)">
+      <span id="brandLabel">FTA001T</span>
+    </div>
+
+    <button class="primary" id="btnAddTile">Extra tegel</button>
+    <button id="btnRenumber" title="Hernummer 1..N">Hernummer</button>
+
+    <div class="seg" title="Tegelgrootte: Compact / Normaal / Ruim">
+      <button id="presetCompact" type="button">Compact</button>
+      <button id="presetNormal" type="button" class="active">Normaal</button>
+      <button id="presetRoomy" type="button">Ruim</button>
+    </div>
+
+    <div class="stepper" title="Kolommen (hoeveel tegels naast elkaar)">
+      <span>C</span>
+      <button class="mini" id="colMinus" type="button">−</button>
+      <span class="val" id="colVal">3</span>
+      <button class="mini" id="colPlus" type="button">+</button>
+    </div>
+
+    <button id="btnAllPhoto" title="Zet alle tegels op foto-kant">Alles foto</button>
+    <button id="btnAllText" title="Zet alle tegels op tekst-kant">Alles tekst</button>
+
+    <div class="spacer"></div>
+
+    <div class="chip" title="Zoeken op tegelnummer of tekst">
+      <span>Zoek</span>
+      <input id="searchInput" type="text" placeholder="bv. 12 of 'fiets'" style="height:calc(var(--tbH) - 10px);border-radius:10px;border:2px solid var(--stroke);padding:0 10px;background:transparent;color:var(--text);font-size:var(--tbFont);width:220px;outline:none;">
+      <button id="btnClearSearch" type="button" title="Zoekveld leegmaken">✕</button>
+    </div>
+
+    <div class="chip" title="Status">
+      <span>Tegels <b id="statTiles">0</b></span>
+      <span>Foto’s <b id="statPhotos">0</b></span>
+      <span>Teksten <b id="statTexts">0</b></span>
+    </div>
+
+    <button id="btnTheme" title="Licht/Donker"><span id="themeLabel">Licht</span>/<span>Donker</span></button>
+    <button id="btnSaveJson" class="primary" title="Download JSON naar Downloads/Bestanden">Opslaan (JSON)</button>
+    <button id="btnLoadJson" title="Laad JSON uit Downloads/Bestanden">Laden (JSON)</button>
+
+    <button id="btnTrash" class="danger" title="Prullenbak openen">Prullenbak (<span id="trashCount">0</span>)</button>
+
+    <input id="jsonInput" type="file" accept="application/json,.json" style="display:none" />
+    <input id="imgInput" type="file" accept="image/*" style="display:none" />
+  </div>
+</header>
+
+<main>
+  <div class="hint">
+    Per tegel: 📷 foto kiezen • ✖ foto leeg • 🧾 tekst leeg • ⎘ dupliceren • ↺ flip • 🗑 naar prullenbak.
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="emptyInfo" class="emptyInfo" style="display:none"></div>
+</main>
+
+<div id="trashModalBack" class="modalBack" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="trashTitle">
+    <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <h2 id="trashTitle" style="margin:6px;">Prullenbak</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="btnTrashEmpty" class="danger" title="Alles definitief verwijderen">Leeg prullenbak</button>
+        <button id="btnTrashClose" title="Sluiten">Sluiten</button>
+      </div>
+    </div>
+    <div id="trashList"></div>
+    <div class="hint" style="margin:6px;">
+      Prullenbak is “veilig”: je kunt eerst weggooien, daarna herstellen of definitief weg.
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const state = {
+    v: 5,
+    theme: "light",
+    preset: "normal",
+    customName: "",
+    cols: 3,
+    tiles: [{ id:1, text:"", imgDataUrl:null, flipped:false }],
+    trash: []
+  };
+
+  const els = {
+    root: document.documentElement,
+    brandBtn: document.getElementById("brandBtn"),
+    brandLabel: document.getElementById("brandLabel"),
+    grid: document.getElementById("grid"),
+    emptyInfo: document.getElementById("emptyInfo"),
+
+    btnAddTile: document.getElementById("btnAddTile"),
+    btnRenumber: document.getElementById("btnRenumber"),
+
+    presetCompact: document.getElementById("presetCompact"),
+    presetNormal: document.getElementById("presetNormal"),
+    presetRoomy: document.getElementById("presetRoomy"),
+
+    colMinus: document.getElementById("colMinus"),
+    colPlus: document.getElementById("colPlus"),
+    colVal: document.getElementById("colVal"),
+
+    btnAllPhoto: document.getElementById("btnAllPhoto"),
+    btnAllText: document.getElementById("btnAllText"),
+
+    searchInput: document.getElementById("searchInput"),
+    btnClearSearch: document.getElementById("btnClearSearch"),
+
+    btnTheme: document.getElementById("btnTheme"),
+    themeLabel: document.getElementById("themeLabel"),
+
+    btnSaveJson: document.getElementById("btnSaveJson"),
+    btnLoadJson: document.getElementById("btnLoadJson"),
+    jsonInput: document.getElementById("jsonInput"),
+
+    imgInput: document.getElementById("imgInput"),
+
+    btnTrash: document.getElementById("btnTrash"),
+    trashCount: document.getElementById("trashCount"),
+    trashModalBack: document.getElementById("trashModalBack"),
+    trashList: document.getElementById("trashList"),
+    btnTrashClose: document.getElementById("btnTrashClose"),
+    btnTrashEmpty: document.getElementById("btnTrashEmpty"),
+  };
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+  function pad3(n){ return String(n).padStart(3,"0"); }
+  function nowIso(){ return new Date().toISOString(); }
+
+  function baseId(){
+    const n = clamp(state.tiles.length, 1, 999);
+    return `FTA${pad3(n)}T`;
+  }
+  function fullLabel(){
+    const name = (state.customName||"").trim();
+    return name ? `${baseId()}-${name}` : baseId();
+  }
+  function safeFilename(){
+    return fullLabel()
+      .replace(/[\/\\:*?"<>|]/g,"-")
+      .replace(/\s+/g," ")
+      .trim();
+  }
+  function updateBrand(){
+    els.brandLabel.textContent = fullLabel();
+    document.title = fullLabel();
+  }
+
+  function updateStats(){
+    const tiles = state.tiles.length;
+    const photos = state.tiles.filter(t=>!!t.imgDataUrl).length;
+    const texts = state.tiles.filter(t=>(t.text||"").trim().length>0).length;
+    document.getElementById("statTiles").textContent = String(tiles);
+    document.getElementById("statPhotos").textContent = String(photos);
+    document.getElementById("statTexts").textContent = String(texts);
+    els.trashCount.textContent = String((state.trash||[]).length);
+  }
+
+  function applyTheme(){
+    els.root.setAttribute("data-theme", state.theme);
+    els.themeLabel.textContent = (state.theme === "dark") ? "Donker" : "Licht";
+  }
+
+  function applyPreset(p){
+    state.preset = p;
+    els.presetCompact.classList.toggle("active", p==="compact");
+    els.presetNormal.classList.toggle("active", p==="normal");
+    els.presetRoomy.classList.toggle("active", p==="roomy");
+
+    let tile = 140;
+    if(p==="compact") tile = 110;
+    if(p==="roomy") tile = 190;
+
+    tile = clamp(tile, 110, 220);
+    document.documentElement.style.setProperty("--tile", `${tile}px`);
+
+    const s = (tile - 110) / (190 - 110); // 0..1
+    const k = 0.92 + s * 0.18;            // ~0.92..1.10
+
+    document.documentElement.style.setProperty("--icon", `${Math.round(18*k)}px`);
+    document.documentElement.style.setProperty("--iconBtnW", `${Math.round(34*k)}px`);
+    document.documentElement.style.setProperty("--iconBtnH", `${Math.round(32*k)}px`);
+    document.documentElement.style.setProperty("--actPad", `${Math.round(8*k)}px`);
+    document.documentElement.style.setProperty("--actGap", `${Math.round(6*k)}px`);
+
+    document.documentElement.style.setProperty("--gap", p==="compact" ? "8px" : "10px");
+  }
+
+  function setCols(c){
+    state.cols = clamp(Number(c)||3, 1, 12);
+    document.documentElement.style.setProperty("--cols", String(state.cols));
+    els.colVal.textContent = String(state.cols);
+  }
+
+  function ensureAtLeastOneTile(){
+    if(!Array.isArray(state.tiles) || state.tiles.length===0){
+      state.tiles = [{ id:1, text:"", imgDataUrl:null, flipped:false }];
+    }
+  }
+  function renumber(){ state.tiles.forEach((t,i)=>t.id=i+1); }
+
+  function repaintImages(){
+    const imgs = els.grid.querySelectorAll("img");
+    if(!imgs.length) return;
+    requestAnimationFrame(() => {
+      imgs.forEach(img => {
+        const s = img.getAttribute("src");
+        if(s) img.setAttribute("src", s);
+      });
+    });
+  }
+
+  function addTile(copyFrom=null){
+    if(state.tiles.length>=999){ alert("Maximum is 999 tegels."); return; }
+    const base = copyFrom ? { text: copyFrom.text||"", imgDataUrl: copyFrom.imgDataUrl||null } : { text:"", imgDataUrl:null };
+    state.tiles.push({ id: state.tiles.length+1, text: base.text, imgDataUrl: base.imgDataUrl, flipped:false });
+    renumber();
+    render(); repaintImages();
+  }
+
+  function duplicateTile(id){
+    const t = state.tiles.find(x=>x.id===id);
+    if(t) addTile(t);
+  }
+
+  function moveToTrash(id){
+    const idx = state.tiles.findIndex(t=>t.id===id);
+    if(idx < 0) return;
+    const tile = state.tiles[idx];
+
+    state.trash = Array.isArray(state.trash) ? state.trash : [];
+    state.trash.unshift({ removedAt: nowIso(), tile: JSON.parse(JSON.stringify(tile)) });
+
+    state.tiles.splice(idx,1);
+    ensureAtLeastOneTile();
+    renumber();
+    render(); repaintImages();
+    updateTrashUI();
+    toast(`Tegel ${id} naar prullenbak.`);
+  }
+
+  function restoreFromTrash(index){
+    const item = state.trash[index];
+    if(!item) return;
+    if(state.tiles.length >= 999){ alert("Maximum is 999 tegels."); return; }
+
+    state.trash.splice(index,1);
+    const t = item.tile || { text:"", imgDataUrl:null, flipped:false };
+    state.tiles.push({ id: state.tiles.length+1, text: String(t.text||""), imgDataUrl: t.imgDataUrl ? String(t.imgDataUrl) : null, flipped: !!t.flipped });
+    renumber();
+    render(); repaintImages();
+    updateTrashUI();
+  }
+
+  function emptyTrash(){
+    if(!state.trash || state.trash.length===0) return;
+    if(!confirm("Prullenbak definitief leegmaken? Dit kan niet ongedaan.")) return;
+    state.trash = [];
+    updateTrashUI();
+  }
+
+  function clearPhoto(id){
+    const t = state.tiles.find(x=>x.id===id);
+    if(!t) return;
+    t.imgDataUrl = null;
+    render();
+  }
+  function clearText(id){
+    const t = state.tiles.find(x=>x.id===id);
+    if(!t) return;
+    t.text = "";
+    render();
+  }
+  function setAllFlipped(flipped){
+    state.tiles.forEach(t=>t.flipped = !!flipped);
+    render(); repaintImages();
+  }
+
+  function svg(inner){
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${inner}</svg>`;
+  }
+  const ICONS = {
+    camera: svg(`<path d="M9 7l1.5-2h3L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3z"/><circle cx="12" cy="13" r="3"/>`),
+    clearPhoto: svg(`<path d="M9 7l1.5-2h3L15 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3z"/><path d="M9 12l6 6"/><path d="M15 12l-6 6"/>`),
+    clearText: svg(`<path d="M5 6h10"/><path d="M5 10h10"/><path d="M5 14h7"/><path d="M5 18h10"/><path d="M18 9l4 4"/><path d="M22 9l-4 4"/>`),
+    flip: svg(`<path d="M7 7h8a4 4 0 0 1 4 4v1"/><path d="M17 8l2 2-2 2"/><path d="M17 17H9a4 4 0 0 1-4-4v-1"/><path d="M7 16l-2-2 2-2"/>`),
+    trash: svg(`<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>`),
+    dup: svg(`<path d="M9 9h10v10H9z"/><path d="M5 5h10v2H7v8H5z"/>`),
+  };
+
+  let pendingImageForTileId = null;
+  function chooseImageForTile(tileId){
+    pendingImageForTileId = tileId;
+    els.imgInput.value = "";
+    els.imgInput.click();
+  }
+
+  function normalized(s){ return String(s||"").toLowerCase().trim(); }
+  function parseSearch(q){
+    const qq = normalized(q);
+    if(!qq) return {kind:"none"};
+    if(/^\d+$/.test(qq)) return {kind:"id", id: Number(qq)};
+    return {kind:"text", text: qq};
+  }
+  function tileMatches(tile, query){
+    if(!query || query.kind==="none") return true;
+    if(query.kind==="id") return tile.id === query.id;
+    const t = normalized(tile.text);
+    return t.includes(query.text);
+  }
+
+  function render(){
+    ensureAtLeastOneTile();
+    updateBrand();
+    updateStats();
+
+    const q = parseSearch(els.searchInput.value);
+    els.grid.innerHTML = "";
+
+    let shown = 0;
+
+    state.tiles.forEach(tile=>{
+      if(!tileMatches(tile, q)) return;
+      shown++;
+
+      const el = document.createElement("div");
+      el.className = "tile" + (tile.flipped ? " flipped" : "");
+      el.innerHTML = `
+        <div class="tileInner">
+          <div class="face front">
+            <div class="content" title="Foto">
+              ${tile.imgDataUrl
+                ? `<img alt="Foto ${tile.id}" src="${tile.imgDataUrl}">`
+                : `<div style="color:var(--muted);font-size:12px;padding:10px;text-align:center">Geen foto<br>📷</div>`
+              }
+            </div>
+            <div class="actions">
+              <div class="leftIcons">
+                <button class="iconBtn actCamera" title="Foto kiezen">${ICONS.camera}</button>
+                <button class="iconBtn actClearPhoto" title="Foto leegmaken">${ICONS.clearPhoto}</button>
+                <button class="iconBtn actClearText" title="Tekst leegmaken">${ICONS.clearText}</button>
+              </div>
+              <div class="rightIcons">
+                <button class="iconBtn actDup" title="Dupliceer">${ICONS.dup}</button>
+                <button class="iconBtn actFlip" title="Flip">${ICONS.flip}</button>
+                <button class="iconBtn actTrash" title="Naar prullenbak">${ICONS.trash}</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="face back">
+            <div class="content" title="Tekst">
+              <textarea class="textBox" placeholder="Typ tekst voor tegel ${tile.id}..."></textarea>
+            </div>
+            <div class="actions">
+              <div class="leftIcons">
+                <button class="iconBtn actCamera" title="Foto kiezen">${ICONS.camera}</button>
+                <button class="iconBtn actClearPhoto" title="Foto leegmaken">${ICONS.clearPhoto}</button>
+                <button class="iconBtn actClearText" title="Tekst leegmaken">${ICONS.clearText}</button>
+              </div>
+              <div class="rightIcons">
+                <button class="iconBtn actDup" title="Dupliceer">${ICONS.dup}</button>
+                <button class="iconBtn actFlip" title="Flip">${ICONS.flip}</button>
+                <button class="iconBtn actTrash" title="Naar prullenbak">${ICONS.trash}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="numBadge">${tile.id}</div>
+      `;
+
+      el.querySelectorAll(".actFlip").forEach(btn => btn.addEventListener("click", ()=>{
+        tile.flipped = !tile.flipped;
+        render(); repaintImages();
+      }));
+      el.querySelectorAll(".actTrash").forEach(btn => btn.addEventListener("click", ()=>{
+        if(!confirm(`Tegel ${tile.id} naar prullenbak?`)) return;
+        moveToTrash(tile.id);
+      }));
+      el.querySelectorAll(".actDup").forEach(btn => btn.addEventListener("click", ()=>duplicateTile(tile.id)));
+      el.querySelectorAll(".actClearPhoto").forEach(btn => btn.addEventListener("click", ()=>clearPhoto(tile.id)));
+      el.querySelectorAll(".actClearText").forEach(btn => btn.addEventListener("click", ()=>clearText(tile.id)));
+      el.querySelectorAll(".actCamera").forEach(btn => btn.addEventListener("click", ()=>chooseImageForTile(tile.id)));
+
+      const ta = el.querySelector(".textBox");
+      ta.value = tile.text || "";
+      ta.addEventListener("input", ()=>{
+        tile.text = ta.value;
+        updateStats();
+      });
+
+      els.grid.appendChild(el);
+    });
+
+    if(shown === 0){
+      els.emptyInfo.style.display = "block";
+      els.emptyInfo.textContent = "Geen tegels zichtbaar door de zoekfilter. Maak het zoekveld leeg (✕).";
+    }else{
+      els.emptyInfo.style.display = "none";
+    }
+  }
+
+  function downloadBlob(filename, blob){
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+
+  function currentPayload(){
+    ensureAtLeastOneTile();
+    return {
+      v: 5,
+      exportedAt: nowIso(),
+      theme: state.theme,
+      preset: state.preset,
+      customName: state.customName || "",
+      cols: state.cols,
+      tiles: state.tiles.map(t=>({
+        id: t.id,
+        text: t.text || "",
+        imgDataUrl: t.imgDataUrl || null,
+        flipped: !!t.flipped
+      }))
+    };
+  }
+
+  function loadPayload(payload){
+    if(!payload || !Array.isArray(payload.tiles)) throw new Error("Onjuist formaat (tiles ontbreekt)");
+
+    state.theme = payload.theme === "dark" ? "dark" : "light";
+    state.preset = (payload.preset === "compact" || payload.preset === "roomy") ? payload.preset : "normal";
+    state.customName = String(payload.customName || "");
+    state.cols = clamp(Number(payload.cols)||3, 1, 12);
+
+    state.tiles = payload.tiles.slice(0,999).map((t,i)=>({
+      id: i+1,
+      text: String(t.text||""),
+      imgDataUrl: t.imgDataUrl ? String(t.imgDataUrl) : null,
+      flipped: !!t.flipped
+    }));
+    ensureAtLeastOneTile();
+    renumber();
+
+    applyTheme();
+    applyPreset(state.preset);
+    setCols(state.cols);
+    render(); repaintImages();
+    updateTrashUI();
+  }
+
+  function saveAsJson(){
+    const payload = currentPayload();
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], {type:"application/json;charset=utf-8"});
+    downloadBlob(`${safeFilename()}.json`, blob);
+  }
+
+  function loadJsonFile(file){
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const txt = String(r.result||"");
+        const payload = JSON.parse(txt);
+        loadPayload(payload);
+        toast("JSON geladen.");
+      }catch(e){
+        console.error(e);
+        alert("Dit is geen geldig FTA JSON-bestand.");
+      }
+    };
+    r.readAsText(file);
+  }
+
+  function updateTrashUI(){
+    updateStats();
+    els.trashList.innerHTML = "";
+    const list = Array.isArray(state.trash) ? state.trash : [];
+    if(list.length === 0){
+      const p = document.createElement("div");
+      p.className = "hint";
+      p.style.margin = "6px";
+      p.textContent = "Prullenbak is leeg.";
+      els.trashList.appendChild(p);
+      return;
+    }
+
+    list.forEach((item, idx)=>{
+      const tile = item.tile || {};
+      const row = document.createElement("div");
+      row.className = "trashRow";
+      const preview = (String(tile.text||"").trim() || "(geen tekst)").slice(0,80);
+      row.innerHTML = `
+        <div class="trashMeta">
+          <div><b>Tegel</b> (toen): ${String(tile.id ?? "?")} — <span style="font-weight:900">${item.removedAt ? new Date(item.removedAt).toLocaleString() : ""}</span></div>
+          <small>Tekst: ${escapeHtml(preview)}</small>
+          <small>${tile.imgDataUrl ? "Met foto" : "Geen foto"} • ${tile.flipped ? "Tekst-kant" : "Foto-kant"}</small>
+        </div>
+        <div class="trashBtns">
+          <button data-act="restore">Herstel</button>
+          <button data-act="drop" class="danger" title="Definitief verwijderen">Definitief weg</button>
+        </div>
+      `;
+      row.querySelector('[data-act="restore"]').addEventListener("click", ()=>restoreFromTrash(idx));
+      row.querySelector('[data-act="drop"]').addEventListener("click", ()=>{
+        if(!confirm("Definitief verwijderen?")) return;
+        state.trash.splice(idx,1);
+        updateTrashUI();
+      });
+      els.trashList.appendChild(row);
+    });
+  }
+
+  function openTrash(){
+    els.trashModalBack.classList.add("open");
+    els.trashModalBack.setAttribute("aria-hidden","false");
+    updateTrashUI();
+  }
+  function closeTrash(){
+    els.trashModalBack.classList.remove("open");
+    els.trashModalBack.setAttribute("aria-hidden","true");
+  }
+
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.getElementById("ftaToast");
+    if(!el){
+      el = document.createElement("div");
+      el.id = "ftaToast";
+      el.style.position = "fixed";
+      el.style.left = "50%";
+      el.style.bottom = "18px";
+      el.style.transform = "translateX(-50%)";
+      el.style.background = "rgba(15,23,42,.92)";
+      el.style.color = "#fff";
+      el.style.padding = "10px 14px";
+      el.style.borderRadius = "999px";
+      el.style.zIndex = "300";
+      el.style.fontWeight = "800";
+      el.style.fontSize = "13px";
+      el.style.maxWidth = "92vw";
+      el.style.textAlign = "center";
+      el.style.pointerEvents = "none";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.style.opacity = "0"; }, 1400);
+  }
+
+  els.btnAddTile.addEventListener("click", ()=>addTile());
+  els.btnRenumber.addEventListener("click", ()=>{ renumber(); render(); repaintImages(); });
+
+  els.presetCompact.addEventListener("click", ()=>{ applyPreset("compact"); render(); repaintImages(); });
+  els.presetNormal.addEventListener("click", ()=>{ applyPreset("normal"); render(); repaintImages(); });
+  els.presetRoomy.addEventListener("click", ()=>{ applyPreset("roomy"); render(); repaintImages(); });
+
+  els.colMinus.addEventListener("click", ()=>{ setCols(state.cols - 1); render(); repaintImages(); });
+  els.colPlus.addEventListener("click", ()=>{ setCols(state.cols + 1); render(); repaintImages(); });
+
+  els.btnAllPhoto.addEventListener("click", ()=>setAllFlipped(false));
+  els.btnAllText.addEventListener("click", ()=>setAllFlipped(true));
+
+  els.btnTheme.addEventListener("click", ()=>{
+    state.theme = (state.theme==="dark") ? "light" : "dark";
+    applyTheme();
+  });
+
+  els.searchInput.addEventListener("input", ()=>render());
+  els.btnClearSearch.addEventListener("click", ()=>{
+    els.searchInput.value = "";
+    render();
+  });
+
+  els.imgInput.addEventListener("change", (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file || pendingImageForTileId == null) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result||"");
+      const t = state.tiles.find(x=>x.id===pendingImageForTileId);
+      if(t){
+        t.imgDataUrl = dataUrl;
+        render(); repaintImages();
+      }
+      pendingImageForTileId = null;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  els.brandBtn.addEventListener("click", ()=>{
+    const current = (state.customName||"").trim();
+    const val = prompt("Aanvullende naam (bijv. Voertuigen). Leeg = geen naam.", current);
+    if(val === null) return;
+    state.customName = String(val).trim();
+    updateBrand();
+  });
+
+  els.btnSaveJson.addEventListener("click", ()=>saveAsJson());
+  els.btnLoadJson.addEventListener("click", ()=>{
+    els.jsonInput.value = "";
+    els.jsonInput.click();
+  });
+  els.jsonInput.addEventListener("change", (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(f) loadJsonFile(f);
+  });
+
+  els.btnTrash.addEventListener("click", ()=>openTrash());
+  els.btnTrashClose.addEventListener("click", ()=>closeTrash());
+  els.btnTrashEmpty.addEventListener("click", ()=>emptyTrash());
+  els.trashModalBack.addEventListener("click", (e)=>{
+    if(e.target === els.trashModalBack) closeTrash();
+  });
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeTrash();
+  });
+
+  applyTheme();
+  applyPreset("normal");
+  setCols(state.cols);
+  render();
+  repaintImages();
+  updateTrashUI();
+})();
+</script>
+</body>
+</html>
