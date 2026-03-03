@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>FTA-Master-JSON-v29</title>
+<title>FTA-Master-JSON-v32</title>
 <style>
   :root{
     --bg:#f5f7fb;
@@ -16,7 +16,7 @@
     --danger:#ef4444;
 
     --tile:140px;
-    --gap:8px;
+    --gap:6px;
     --radius:16px;
 
     --btn:26px;
@@ -24,8 +24,8 @@
     --icon:16px;
     --badge:22px;
 
-    --chipH:34px;
-    --chipR:10px;
+    --chipH:30px;
+    --chipR:9px;
   }
 
   *{box-sizing:border-box}
@@ -45,11 +45,12 @@
     border-bottom:1px solid rgba(199,204,214,.8);
   }
   .topbar{
+    font-size:13px;
     display:flex;
     flex-wrap:wrap;
-    gap:8px;
+    gap:6px;
     align-items:center;
-    padding: 8px 10px;
+    padding: 6px 8px;
     max-width:2200px;
     margin:0 auto;
   }
@@ -61,13 +62,13 @@
     color:var(--text);
     display:inline-flex;
     align-items:center;
-    gap:8px;
-    padding:0 10px;
-    font-weight:650;
+    gap:6px;
+    padding:0 9px;
+    font-weight:560;
     letter-spacing:.2px;
     user-select:none;
     white-space:nowrap;max-width:calc(100% - 60px);overflow:hidden;text-overflow:ellipsis;
-    font-size:14px;
+    font-size:13px;
   }
   button.chip{cursor:pointer}
   button.chip:active{transform:translateY(1px)}
@@ -86,13 +87,13 @@
     justify-content:center;
     padding:0;
   }
-  .stepper{display:inline-flex; align-items:center; gap:8px;}
+  .stepper{display:inline-flex; align-items:center; gap:6px;}
   .stepper .chip.small{min-width:110px; justify-content:center}
 
   .searchRow{
     display:flex;
     flex-wrap:wrap;
-    gap:8px;
+    gap:6px;
     align-items:center;
   }
   .searchChip{
@@ -103,7 +104,7 @@
     border:2px solid var(--border);
     background:var(--panel);
     padding:0 8px;
-    gap:8px;
+    gap:6px;
     font-size:14px;
   }
   .searchChip label{
@@ -156,7 +157,7 @@
   .panel-inset{
     position:absolute;
     inset:10px;
-    border:2px dashed rgba(37,99,235,.40);
+    border:2px solid rgba(37,99,235,.22);
     border-radius:14px;
     display:flex;
     align-items:center;
@@ -183,57 +184,70 @@
     overflow:auto;
     white-space:pre-wrap;
     word-break:break-word;
-    font-size:clamp(13px, calc(var(--tile) * 0.10), 20px);
+    font-size:clamp(10px, calc(var(--tile) * 0.085), 18px);
     font-weight:650;
     line-height:1.22;
     padding:4px;
   }
   .hidden{display:none !important}
 
-  .badge{z-index:3;
-    position:absolute;
-    left:10px;
-    bottom:10px;
-    width:var(--badge);
-    height:var(--badge);
-    border-radius:999px;
-    border:2px solid var(--border2);
-    background:var(--panel);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    font-size:calc(var(--badge) * 0.55);
-    box-shadow:0 4px 10px rgba(0,0,0,.16);
-    user-select:none;
-    pointer-events:none;
-  }
-
-  .name-inset{z-index:3;
-    position:absolute;
-    left:calc(10px + var(--badge) + 6px);
-    right:10px;
-    bottom:10px;
-    font-size:12px;
-    font-weight:600;
-    line-height:1.1;
-    color:#111;
-    text-shadow:0 1px 0 rgba(255,255,255,.8);
-    white-space:nowrap;max-width:calc(100% - 60px);overflow:hidden;text-overflow:ellipsis;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    pointer-events:none;
-  }
+.badgeRow{z-index:3;
+  position:absolute;
+  left:10px;
+  bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  max-width:calc(100% - 20px);
+  pointer-events:none;
+}
+.badge{
+  width:var(--badge);
+  height:var(--badge);
+  border-radius:999px;
+  border:2px solid var(--border2);
+  background:var(--panel);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  font-size:calc(var(--badge) * 0.55);
+  box-shadow:0 4px 10px rgba(0,0,0,.16);
+  user-select:none;
+  flex:0 0 auto;
+}
+.badge.d1{font-size:calc(var(--badge) * 0.58);}
+.badge.d2{font-size:calc(var(--badge) * 0.52);}
+.badge.d3{font-size:calc(var(--badge) * 0.44);}
+.namePill{
+  height:var(--badge);
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  border:2px solid var(--border2);
+  background:var(--panel);
+  color:var(--text);
+  font-weight:700;
+  font-size:calc(var(--badge) * 0.44);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+  flex:1 1 auto;
+}
 
   
+  
   .icons{
-    padding:8px 10px;
+    padding:6px 8px;
     display:flex;
-    justify-content:space-between;
+    justify-content:flex-start;
     align-items:center;
-    gap:8px;
+    gap:6px;
   }
-  .icons-left,.icons-right{display:flex; align-items:center; gap:8px;}
+  .icons-left,.icons-right{display:flex; align-items:center; gap:6px;}
+  .icons-right{margin-left:auto;}
   .ibtn{
     width:var(--btn);
     height:var(--btn);
@@ -254,8 +268,14 @@
     background:rgba(239,68,68,.10);
   }
 
+  
+    /* Small tiles: keep one row of 4 buttons (shrink instead of wrapping) */
+  .smallTile .icons{padding:5px 6px;}
+  .smallTile .icons-left,.smallTile .icons-right{gap:5px;}
+
   @media (max-width: 520px){
-    .topbar{gap:6px}
+    .topbar{
+    font-size:13px;gap:6px}
     .chip{padding:0 8px}
     .searchChip input{width:110px}
     .textChip input{width:120px}
@@ -264,7 +284,7 @@
   /* Edit modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50;padding:14px;}
   .modal-card{background:#fff;border-radius:18px;max-width:920px;width:min(920px,96vw);box-shadow:0 18px 50px rgba(0,0,0,.25);border:2px solid var(--border2);}
-  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 16px 8px;}
+  .modal-head{display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:16px 16px 8px;}
   .modal-title{font-size:28px;font-weight:800;}
   .modal-body{padding:0 16px 10px;}
   .modal-label{display:block;font-size:14px;font-weight:700;margin:8px 0 6px;}
@@ -272,7 +292,7 @@
   .modal-textarea{min-height:240px;resize:vertical;}
   .modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:10px 16px 16px;}
 
-  .nameTag{max-width: calc(100% - 160px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 10px; height:26px; line-height:26px; border:1px solid var(--border2); border-radius:999px; background:#fff; font-size:12px; color:#111;}
+  .nameTag{max-width: calc(100% - 160px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 9px; height:26px; line-height:26px; border:1px solid var(--border2); border-radius:999px; background:#fff; font-size:12px; color:#111;}
   body.dark .nameTag{background:#1f242b; color:#e8eef7;}
 </style>
 </head>
@@ -309,6 +329,8 @@
         </div>
       </div>
 
+      <button class="chip" id="btnList">Tegellijst</button>
+
       <div class="chip small" id="counts">Tegels 1 · Foto's 0 · Teksten 0</div>
       <button class="chip primary" id="btnSave">Opslaan (JSON)</button>
       <button class="chip" id="btnLoad">Laden (JSON)</button>
@@ -325,7 +347,7 @@
 
   <div class="hidden" id="trashModal" style="position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:center; justify-content:center; padding:16px;">
     <div style="width:min(920px,100%); max-height:min(82vh,920px); overflow:auto; background:var(--panel); border:2px solid var(--border2); border-radius:18px; box-shadow:0 20px 80px rgba(0,0,0,.50); padding:14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap: 6px; padding:2px 6px;">
+      <div style="display:flex; justify-content:flex-start; align-items:center; gap: 6px; padding:2px 6px;">
         <h2 style="margin:0; font-size:18px;">Prullenbak</h2>
         <div style="display:flex; gap:10px; align-items:center;">
           <button class="chip" id="btnCloseTrash">Sluiten</button>
@@ -334,7 +356,8 @@
       </div>
       <div id="trashList" style="display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); padding:6px;"></div>
     </div>
-  
+  </div>
+
   <div id="editModal" class="modal-backdrop" style="display:none">
     <div class="modal-card" role="dialog" aria-modal="true" aria-label="Tegel bewerken">
       <div class="modal-head">
@@ -357,7 +380,27 @@
       </div>
     </div>
   </div>
-</div>
+
+  <div id="listModal" class="modal-backdrop" style="display:none">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Tegellijst">
+      <div class="modal-head">
+        <div class="modal-title">Tegellijst</div>
+        <button class="chip btn" id="listCloseTop" type="button">Sluiten</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="chip small" id="listMeta" style="margin:0 0 10px 0; width:fit-content;">...</div>
+        <div id="listCols" style="display:grid; grid-template-columns:1fr 1fr; column-gap:28px; row-gap:2px; align-items:start; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size:12px; line-height:1.35;">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="chip btn" id="listCopy" type="button">Kopieer</button>
+        <button class="chip btn" id="listPrint" type="button">Print</button>
+        <button class="chip btn primary" id="listClose" type="button">Sluiten</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -373,16 +416,18 @@
 
   function scaleFromTile(tile){
     const t = tile;
-    const btn  = Math.round(clamp(t * 0.16, 22, 32));
-    const icon = Math.round(clamp(btn * 0.58, 12, 18));
-    const badge= Math.round(clamp(t * 0.14, 18, 28));
-    const gap  = Math.round(clamp(t * 0.04, 5, 10));
+    const btn  = Math.round(clamp(t * 0.18, 16, 34));
+    const icon = Math.round(clamp(btn * 0.58, 10, 18));
+    const badge= Math.round(clamp(t * 0.14, 16, 28));
+    const gap  = Math.round(clamp(t * 0.03, 3, 10));
     const radius = Math.round(clamp(t * 0.10, 14, 18));
     return {btn, icon, badge, gap, radius};
   }
 
   const state = {
-    v: 29,
+    v: 32,
+    currentFileName: "",
+    currentFileStamp: "",
     tileSize: DEFAULT_TILE,
     tiles: [],
     trash: []
@@ -423,6 +468,7 @@
     document.documentElement.style.setProperty("--gap", s.gap + "px");
     document.documentElement.style.setProperty("--radius", s.radius + "px");
     sizeLabel.textContent = "Grootte " + state.tileSize;
+    document.documentElement.classList.toggle("smallTile", state.tileSize <= 110);
   }
 
   function normalizeIds(){
@@ -466,12 +512,16 @@
     wrap.dataset.id = tile.id;
 
     const hasText = !!(tile.text && tile.text.trim().length);
+    const digits = String(tile.id).length;
+    const digitsClass = digits === 1 ? 'd1' : (digits === 2 ? 'd2' : 'd3');
 
     wrap.innerHTML = `
       <div class="tile-inner">
         <div class="square" title="Klik om te flippen (foto/tekst)">
-          <div class="badge">${tile.id}</div>
-          <div class="name-inset">${escapeHtml(tile.name||"")}</div>
+          <div class="badgeRow">
+            <div class="badge ${digitsClass}">${tile.id}</div>
+            <div class="namePill">${escapeHtml(tile.name||"")}</div>
+          </div>
 
           <div class="panel-inset photo ${tile.flipped ? "hidden" : ""}">
             ${tile.imgDataUrl ? `<img alt="foto" src="${tile.imgDataUrl}">` : `<div class="placeholder">Geen foto</div>`}
@@ -566,6 +616,8 @@
       }))
     };
     const filename = `${ftaCode.textContent}-export.json`;
+    state.currentFileName = filename;
+    state.currentFileStamp = new Date().toISOString();
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -578,6 +630,8 @@
   }
 
   async function importJsonFile(file){
+    state.currentFileName = file && file.name ? file.name : state.currentFileName;
+    state.currentFileStamp = new Date().toISOString();
     let data;
     try{ data = JSON.parse(await file.text()); }
     catch{ alert("Dit JSON-bestand kan niet gelezen worden."); return; }
@@ -601,6 +655,134 @@
   }
 
   const trashModal = $("#trashModal");
+
+
+  // Tegellijst modal
+  const btnList = $("#btnList");
+  const listModal = $("#listModal");
+  const listCloseTop = $("#listCloseTop");
+  const listClose = $("#listClose");
+  const listCopy = $("#listCopy");
+  const listPrint = $("#listPrint");
+  const listCols = $("#listCols");
+  const listMeta = $("#listMeta");
+
+  function pad3(n){ return String(n).padStart(3,"0"); }
+
+  function formatStamp(iso){
+    try{
+      const d = iso ? new Date(iso) : new Date();
+      return d.toLocaleString("nl-NL", {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+    }catch{
+      return "";
+    }
+  }
+
+  function currentHeaderText(){
+    const name = state.currentFileName || (ftaCode.textContent + "-export.json");
+    const stamp = formatStamp(state.currentFileStamp || new Date().toISOString());
+    return `${name} • ${stamp}`;
+  }
+
+  function buildListEntries(){
+    // respect current search filters
+    const qNr = (nrSearch.value||"").trim().replace(/\D+/g,"").slice(0,3);
+    const qName = (nameSearch.value||"").trim().toLowerCase();
+    const qText = (textSearch.value||"").trim().toLowerCase();
+
+    const filtered = state.tiles.filter(t=>{
+      if (!qNr && !qName && !qText) return true;
+      if (qNr && String(t.id) !== qNr) return false;
+      if (qName && !(t.name||"").toLowerCase().includes(qName)) return false;
+      if (qText && !(t.text||"").toLowerCase().includes(qText)) return false;
+      return true;
+    });
+
+    return filtered.map(t=>{
+      const name = (t.name||"").trim();
+      const text = (t.text||"").trim().replace(/\s+/g," ");
+      const line = `${pad3(t.id)} / ${name || "—"} / ${text || "—"}`;
+      return { id: t.id, line };
+    });
+  }
+
+  function buildOddEvenRows(entries){
+    const odds = entries.filter(e=>e.id % 2 === 1).sort((a,b)=>a.id-b.id).map(e=>e.line);
+    const evens = entries.filter(e=>e.id % 2 === 0).sort((a,b)=>a.id-b.id).map(e=>e.line);
+    const rows = [];
+    const n = Math.max(odds.length, evens.length);
+    for(let i=0;i<n;i++){
+      rows.push([odds[i] || "", evens[i] || ""]);
+    }
+    return rows;
+  }
+
+  function openListModal(){
+    const entries = buildListEntries();
+    const rows = buildOddEvenRows(entries);
+
+    listMeta.textContent = `Regels ${entries.length} (filter: Nr/Naam/Tekst) • ${currentHeaderText()}`;
+    listCols.innerHTML = "";
+
+    for(const [l,r] of rows){
+      const a = document.createElement("div");
+      const b = document.createElement("div");
+      a.textContent = l;
+      b.textContent = r;
+      listCols.appendChild(a);
+      listCols.appendChild(b);
+    }
+    listModal.style.display = "flex";
+  }
+
+  function closeListModal(){
+    listModal.style.display = "none";
+  }
+
+  btnList.addEventListener("click", openListModal);
+  [listCloseTop, listClose].forEach(b=>b.addEventListener("click", closeListModal));
+  listModal.addEventListener("click",(e)=>{ if(e.target===listModal) closeListModal(); });
+
+  listCopy.addEventListener("click", async ()=>{
+  const rows = buildOddEvenRows(buildListEntries());
+  const text = rows.map(([l,r]) => (l || "") + (r ? "\t" + r : "")).join("\n");
+  try{ await navigator.clipboard.writeText(text); alert("Tegellijst gekopieerd."); }
+  catch{ alert("Kon niet kopiëren. Je kunt de tekst selecteren en kopiëren."); }
+});
+
+listPrint.addEventListener("click", ()=>{
+  const entries = buildListEntries();
+  const rows = buildOddEvenRows(entries);
+  const title = ftaCode.textContent + " – Tegellijst";
+  const header = currentHeaderText();
+  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>${title}</title>
+    <style>
+      @page{ size: A4 landscape; margin: 10mm; }
+      body{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; margin:0;}
+      header{font-family:system-ui,-apple-system; margin:0 0 8mm 0;}
+      h1{font-size:18px; margin:0 0 2mm 0;}
+      .meta{font-size:12px; color:#444;}
+      table{width:100%; border-collapse:collapse; font-size:12px; line-height:1.35;}
+      td{vertical-align:top; padding:1px 6px 1px 0; white-space:pre;}
+      td.r{padding-left:16px;}
+    </style></head><body>
+    <header>
+      <h1>${title}</h1>
+      <div class="meta">${escapeHtml(header)}</div>
+    </header>
+    <table>
+      ${rows.map(([l,r])=>`<tr><td>${escapeHtml(l||"")}</td><td class="r">${escapeHtml(r||"")}</td></tr>`).join("")}
+    </table>
+    </body></html>`;
+  const w = window.open("", "_blank");
+  if(!w){ alert("Popup geblokkeerd."); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  w.print();
+});
 
   const editModal = $("#editModal");
   const editModalTitle = $("#editModalTitle");
