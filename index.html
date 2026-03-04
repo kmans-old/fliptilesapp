@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>FTA-Master-JSON-v32</title>
+<title>FTA-Master-JSON-v46</title>
 <style>
   :root{
     --bg:#f5f7fb;
@@ -294,6 +294,103 @@
 
   .nameTag{max-width: calc(100% - 160px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 9px; height:26px; line-height:26px; border:1px solid var(--border2); border-radius:999px; background:#fff; font-size:12px; color:#111;}
   body.dark .nameTag{background:#1f242b; color:#e8eef7;}
+
+
+/* ===== Print (Tegellijst) ===== */
+#printHost{display:none;}
+body.print-mode #printHost{display:block;}
+
+#printHost{
+  background:#fff;
+  color:#000;
+  padding:0;
+}
+#printHost .printHeader{
+  padding:12mm 12mm 0 12mm;
+}
+#printHost .printTitle{
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:-0.5px;
+  margin:0 0 2mm 0;
+}
+#printHost .printMeta{
+  font-size:14px;
+  color:#444;
+  margin:0 0 6mm 0;
+}
+#printHost .printPre{
+  padding:0 12mm 0 12mm;
+  margin:0;
+  white-space:pre;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:13px;
+  line-height:1.35;
+  column-count:2;
+  column-gap:18mm;
+}
+#printHost .printFooter{
+  display:none;
+}
+#printHost .pageCounter::before{
+  content:"Pagina " counter(page) " van " counter(pages);
+}
+
+@media print{
+  /* Only print the printHost; prevent blank extra pages */
+  body > *:not(#printHost){ display:none !important; }
+  #printHost{ display:block !important; }
+  #printHost .printFooter{
+    display:block;
+    position:fixed;
+    right:12mm;
+    bottom:10mm;
+    font-size:12px;
+    color:#444;
+  }
+  @page { margin: 12mm 12mm 18mm 12mm; }
+}
+
+
+/* --- Print: Tegellijst zonder pop-ups --- */
+@media print {
+  /* alles verbergen, behalve Tegellijst */
+  body * { visibility: hidden !important; }
+  body.printing-list #listModal,
+  body.printing-list #listModal * { visibility: visible !important; }
+
+  body.printing-list #listModal {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    background: transparent !important;
+  }
+  body.printing-list #listModal .modal {
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-list #listModal .modalTop,
+  body.printing-list #listModal .modalActions { display: none !important; }
+
+  /* paginanummer rechtsonder (Safari/Chrome: counter(pages) kan soms leeg zijn) */
+  body.printing-list #printFooter {
+    display: block !important;
+    position: fixed;
+    right: 12mm;
+    bottom: 12mm;
+    font-size: 10pt;
+  }
+  body.printing-list #printFooter::after {
+    content: "Pagina " counter(page) " van " counter(pages);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -345,7 +442,7 @@
     <div class="grid" id="grid"></div>
   </div>
 
-  <div class="hidden" id="trashModal" style="position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:center; justify-content:center; padding:16px;">
+  <div id="trashModal" style="position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:center; justify-content:center; padding:16px;">
     <div style="width:min(920px,100%); max-height:min(82vh,920px); overflow:auto; background:var(--panel); border:2px solid var(--border2); border-radius:18px; box-shadow:0 20px 80px rgba(0,0,0,.50); padding:14px;">
       <div style="display:flex; justify-content:flex-start; align-items:center; gap: 6px; padding:2px 6px;">
         <h2 style="margin:0; font-size:18px;">Prullenbak</h2>
@@ -425,7 +522,7 @@
   }
 
   const state = {
-    v: 32,
+    v: 33,
     currentFileName: "",
     currentFileStamp: "",
     tileSize: DEFAULT_TILE,
@@ -489,7 +586,16 @@
     btnTrash.textContent = `Prullenbak ( ${state.trash.length} )`;
   }
 
-  function matchesSearch(tile){
+  function getFilteredRows(){
+    // Returns tiles that match current search fields (Nr/Naam/Tekst)
+    return state.tiles.filter(t=>matchesSearch(t)).map(t=>({
+      nr: String(t.id).padStart(3,"0"),
+      name: (t.name||"").trim(),
+      text: (t.text||"").trim()
+    }));
+  }
+
+function matchesSearch(tile){
     const qNr = (nrSearch.value||"").trim().replace(/\D+/g,"").slice(0,3);
     const qName = (nameSearch.value||"").trim().toLowerCase();
     const qText = (textSearch.value||"").trim().toLowerCase();
@@ -678,6 +784,8 @@
     }
   }
 
+function nowStamp(){ return formatStamp(null); }
+
   function currentHeaderText(){
     const name = state.currentFileName || (ftaCode.textContent + "-export.json");
     const stamp = formatStamp(state.currentFileStamp || new Date().toISOString());
@@ -750,92 +858,29 @@
   catch{ alert("Kon niet kopiëren. Je kunt de tekst selecteren en kopiëren."); }
 });
 
-listPrint.addEventListener("click", ()=>{
-  const entries = buildListEntries();
-  const rows = buildOddEvenRows(entries);
-  const title = ftaCode.textContent + " – Tegellijst";
-  const header = currentHeaderText();
-  const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>${title}</title>
-    <style>
-      @page{ size: A4 landscape; margin: 10mm; }
-      body{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; margin:0;}
-      header{font-family:system-ui,-apple-system; margin:0 0 8mm 0;}
-      h1{font-size:18px; margin:0 0 2mm 0;}
-      .meta{font-size:12px; color:#444;}
-      table{width:100%; border-collapse:collapse; font-size:12px; line-height:1.35;}
-      td{vertical-align:top; padding:1px 6px 1px 0; white-space:pre;}
-      td.r{padding-left:16px;}
-    </style></head><body>
-    <header>
-      <h1>${title}</h1>
-      <div class="meta">${escapeHtml(header)}</div>
-    </header>
-    <table>
-      ${rows.map(([l,r])=>`<tr><td>${escapeHtml(l||"")}</td><td class="r">${escapeHtml(r||"")}</td></tr>`).join("")}
-    </table>
-    </body></html>`;
-  const w = window.open("", "_blank");
-  if(!w){ alert("Popup geblokkeerd."); return; }
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
-  w.focus();
-  w.print();
-});
+listPrint.addEventListener("click", () => {
+    // Print in dezelfde tab (geen pop-up) – alleen de Tegellijst
+    if (listModal.style.display !== "flex") return;
 
-  const editModal = $("#editModal");
-  const editModalTitle = $("#editModalTitle");
-  const editName = $("#editName");
-  const editText = $("#editText");
-  const editCloseTop = $("#editCloseTop");
-  const editCancel = $("#editCancel");
-  const editClear = $("#editClear");
-  const editSave = $("#editSave");
-  let editingId = null;
+    document.body.classList.add("printing-list");
+    // Zorg dat de modal zichtbaar blijft tijdens print
+    listModal.style.display = "flex";
 
-  function openEditModal(id){
-    const tile = state.tiles.find(t=>t.id===id);
-    if(!tile) return;
-    editingId = id;
-    editModalTitle.textContent = "Tegel " + id;
-    editName.value = tile.name || "";
-    editText.value = tile.text || "";
-    editModal.style.display = "flex";
-    setTimeout(()=>editName.focus(), 0);
-  }
-  function closeEditModal(){
-    editModal.style.display = "none";
-    editingId = null;
-  }
-  function applyEdit(saveChanges){
-    if(!editingId) { closeEditModal(); return; }
-    const tile = state.tiles.find(t=>t.id===editingId);
-    if(!tile) { closeEditModal(); return; }
-    if(saveChanges){
-      tile.name = (editName.value || "").trim();
-      tile.text = (editText.value || "");
-      render();
+    // Safari: afterprint is niet altijd betrouwbaar; daarom ook fallback timer
+    const cleanup = () => {
+      document.body.classList.remove("printing-list");
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+
+    try {
+      window.focus();
+      window.print();
+    } finally {
+      setTimeout(cleanup, 800);
     }
-    closeEditModal();
-  }
-
-  editCloseTop.addEventListener("click", ()=>applyEdit(false));
-  editSave.addEventListener("click", ()=>applyEdit(true));
-  editCancel.addEventListener("click", ()=>applyEdit(false));
-  editClear.addEventListener("click", ()=>{
-    editName.value = "";
-    editText.value = "";
-    editName.focus();
   });
-  editModal.addEventListener("click", (e)=>{
-    if(e.target === editModal) applyEdit(false);
-  });
-  window.addEventListener("keydown",(e)=>{
-    if(e.key==="Escape" && editModal.style.display==="flex") applyEdit(false);
-  });
-
-  const trashList = $("#trashList");
+const trashList = $("#trashList");
   $("#btnTrash").addEventListener("click", () => {
     renderTrash();
     trashModal.style.display = "flex";
@@ -951,14 +996,30 @@ listPrint.addEventListener("click", ()=>{
 
   function init(){
     applyTileSize(DEFAULT_TILE);
-    state.tiles = [{id:1, _uid:uid(), name:"", text:"", imgDataUrl:null, flipped:false}];
+    state.tiles = Array.from({length: 25}, (_, i) => ({ id: i+1, _uid: uid(), name:"", text:"", imgDataUrl:null, flipped:false }));
     render();
   }
   init();
 
   // live search
   [nrSearch, nameSearch, textSearch].forEach(inp => inp.addEventListener("input", render));
+  // cleanup after printing
+  window.addEventListener("afterprint", () => { document.body.classList.remove("print-mode"); });
+
 })();
 </script>
+
+  <!-- Print host (same-tab printing; avoids popup blockers) -->
+  <div id="printHost" aria-hidden="true">
+    <div class="printHeader">
+      <div id="printTitle" class="printTitle"></div>
+      <div id="printMeta" class="printMeta"></div>
+    </div>
+    <pre id="printPre" class="printPre"></pre>
+    <div class="printFooter"><span class="pageCounter"></span></div>
+  </div>
+
+
+<div id="printFooter" style="display:none;"></div>
 </body>
 </html>
